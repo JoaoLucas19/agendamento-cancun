@@ -121,4 +121,4 @@ Se você tiver alguma dúvida ou sugestão, não hesite em entrar em contato:
 - **Instagram:** @chacaracancunpmw
 
 ---
-Desenvolvido com ❤️ por [Seu Nome] 
+Desenvolvido com ❤️ por [João Lucas]. 
