@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Contrato de Locação{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-0">Contrato de Locação</h1>
+                        <div class="d-flex align-items-center gap-3">
+                            {% if reservation.contract.status == 'completed' %}
+                            <a href="{{ url_for('download_contract', reservation_id=reservation.id) }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-download me-1"></i>Download Contrato
+                            </a>
+                            {% endif %}
+                            <span class="badge bg-{{ 'success' if reservation.contract.status == 'completed' else 'warning' }} fs-6">
+                                {% if reservation.contract.status == 'completed' %}
+                                <i class="fas fa-check-circle me-1"></i>Contrato Finalizado
+                                {% else %}
+                                <i class="fas fa-clock me-1"></i>Aguardando Assinaturas
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="contract-content mb-4">
+                        <h2 class="h4 mb-4">CONTRATO DE LOCAÇÃO DE CHÁCARA PARA EVENTOS</h2>
+                        
+                        <p class="mb-4">Pelo presente instrumento particular de locação de imóvel para eventos, de um lado:</p>
+                        
+                        <p><strong>LOCADOR:</strong> Chácara Cancún, doravante denominado simplesmente LOCADOR.</p>
+                        
+                        <p><strong>LOCATÁRIO:</strong> {{ reservation.user.name }}, portador do email {{ reservation.user.email }}, 
+                        telefone {{ reservation.user.phone }}, doravante denominado simplesmente LOCATÁRIO.</p>
+                        
+                        <h3 class="h5 mt-4 mb-3">1. OBJETO</h3>
+                        <p>O presente contrato tem como objeto a locação da Chácara Cancún para realização de evento.</p>
+                        
+                        <h3 class="h5 mt-4 mb-3">2. DADOS DA RESERVA</h3>
+                        <ul class="list-unstyled">
+                            <li><strong>Check-in:</strong> {{ reservation.check_in.strftime('%d/%m/%Y') }} às 10:00</li>
+                            <li><strong>Check-out:</strong> {{ reservation.check_out.strftime('%d/%m/%Y') }} às 18:00</li>
+                            <li><strong>Número de Convidados:</strong> {{ reservation.guests }} pessoas</li>
+                            {% if reservation.notes %}
+                            <li class="mt-2"><strong>Observações:</strong> {{ reservation.notes }}</li>
+                            {% endif %}
+                        </ul>
+
+                        <h3 class="h5 mt-4 mb-3">3. CONDIÇÕES GERAIS</h3>
+                        <ol>
+                            <li>O LOCATÁRIO deverá efetuar o pagamento de 50% do valor total no ato da reserva.</li>
+                            <li>O saldo restante deverá ser pago até 3 dias antes do evento.</li>
+                            <li>Em caso de cancelamento, este deverá ser feito com no mínimo 7 dias de antecedência.</li>
+                            <li>O LOCATÁRIO se responsabiliza por quaisquer danos causados ao imóvel durante o período de locação.</li>
+                            <li>A capacidade máxima de 100 pessoas deve ser rigorosamente respeitada.</li>
+                        </ol>
+                    </div>
+
+                    <div class="signatures mt-5">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h4 class="h6 mb-3">Assinatura do Locatário</h4>
+                                        {% if reservation.contract.client_signature %}
+                                        <div class="signature-box border rounded p-3 mb-3 bg-light">
+                                            <img src="{{ reservation.contract.client_signature }}" alt="Assinatura do Locatário">
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            Assinado em {{ (reservation.contract.client_signature_date - timedelta(hours=3)).strftime('%d/%m/%Y às %H:%M') }}
+                                        </small>
+                                        {% elif current_user.id == reservation.user_id %}
+                                        <form action="{{ url_for('sign_contract', reservation_id=reservation.id) }}" method="POST">
+                                            <div class="signature-pad-wrapper mb-3">
+                                                <canvas id="signatureCanvas" class="border rounded w-100" height="150"></canvas>
+                                                <input type="hidden" name="signature" id="signatureData">
+                                            </div>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <button type="button" class="btn btn-secondary btn-sm" id="clearSignature">
+                                                    <i class="fas fa-eraser me-1"></i>Limpar
+                                                </button>
+                                                <button type="submit" class="btn btn-primary btn-sm" id="saveSignature">
+                                                    <i class="fas fa-signature me-1"></i>Assinar
+                                                </button>
+                                            </div>
+                                        </form>
+                                        {% else %}
+                                        <div class="signature-placeholder p-3 border rounded bg-light">
+                                            <p class="text-muted mb-0">
+                                                <i class="fas fa-pen me-1"></i>Aguardando assinatura...
+                                            </p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h4 class="h6 mb-3">Assinatura do Locador</h4>
+                                        {% if reservation.contract.admin_signature %}
+                                        <div class="signature-box border rounded p-3 mb-3 bg-light">
+                                            <img src="{{ reservation.contract.admin_signature }}" alt="Assinatura do Locador">
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            Assinado em {{ (reservation.contract.admin_signature_date - timedelta(hours=3)).strftime('%d/%m/%Y às %H:%M') }}
+                                        </small>
+                                        {% elif current_user.is_admin %}
+                                        <form action="{{ url_for('sign_contract', reservation_id=reservation.id) }}" method="POST">
+                                            <div class="signature-pad-wrapper mb-3">
+                                                <canvas id="signatureCanvasAdmin" class="border rounded w-100" height="150"></canvas>
+                                                <input type="hidden" name="signature" id="signatureDataAdmin">
+                                            </div>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <button type="button" class="btn btn-secondary btn-sm" id="clearSignatureAdmin">
+                                                    <i class="fas fa-eraser me-1"></i>Limpar
+                                                </button>
+                                                <button type="submit" class="btn btn-primary btn-sm" id="saveSignatureAdmin">
+                                                    <i class="fas fa-signature me-1"></i>Assinar e Aprovar
+                                                </button>
+                                            </div>
+                                        </form>
+                                        {% else %}
+                                        <div class="signature-placeholder p-3 border rounded bg-light">
+                                            <p class="text-muted mb-0">
+                                                <i class="fas fa-pen me-1"></i>Aguardando assinatura do administrador...
+                                            </p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function initSignaturePad(canvasId, dataId, clearId, saveId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(0, 0, 0)',
+            minWidth: 1,
+            maxWidth: 2.5,
+            velocityFilterWeight: 0.7
+        });
+
+        // Ajusta o tamanho do canvas
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const context = canvas.getContext("2d");
+            
+            const oldContent = canvas.toDataURL();
+            const oldWidth = canvas.width;
+            const oldHeight = canvas.height;
+            
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            context.scale(ratio, ratio);
+            
+            // Restaura o conteúdo anterior se existir
+            if (!signaturePad.isEmpty()) {
+                const img = new Image();
+                img.onload = function() {
+                    context.drawImage(img, 0, 0, oldWidth, oldHeight, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = oldContent;
+            }
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        // Botão de limpar
+        document.getElementById(clearId).addEventListener('click', function() {
+            signaturePad.clear();
+        });
+
+        // Salvar assinatura
+        const form = canvas.closest('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (signaturePad.isEmpty()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Assinatura Necessária',
+                    text: 'Por favor, faça sua assinatura antes de salvar.',
+                    confirmButtonColor: '#3498db'
+                });
+                return false;
+            }
+            document.getElementById(dataId).value = signaturePad.toDataURL();
+            form.submit();
+        });
+
+        // Feedback visual durante a assinatura
+        canvas.style.cursor = 'crosshair';
+        canvas.addEventListener('mousedown', function() {
+            canvas.style.cursor = 'crosshair';
+        });
+        canvas.addEventListener('mouseup', function() {
+            canvas.style.cursor = 'crosshair';
+        });
+    }
+
+    // Inicializa os pads de assinatura
+    initSignaturePad('signatureCanvas', 'signatureData', 'clearSignature', 'saveSignature');
+    initSignaturePad('signatureCanvasAdmin', 'signatureDataAdmin', 'clearSignatureAdmin', 'saveSignatureAdmin');
+});
+</script>
+
+<style>
+.contract-content {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.signature-pad-wrapper {
+    touch-action: none;
+}
+.signature-box {
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.signature-box img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+.signature-box svg {
+    max-width: 100%;
+    height: auto;
+}
+canvas {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px;
+    touch-action: none;
+    background-color: #ffffff;
+}
+.btn-signature {
+    min-width: 120px;
+}
+.signature-placeholder {
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %} 

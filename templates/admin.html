@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Administrativo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-tasks me-2 text-primary"></i>
+                    Painel Administrativo
+                </h1>
+                <span class="badge bg-primary fs-5">
+                    <i class="fas fa-calendar-check me-1"></i>
+                    Total: {{ reservations|length }} reservas
+                </span>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">
+                            <i class="fas fa-calendar-alt text-primary me-2"></i>
+                            Gerenciar Reservas
+                        </h2>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary btn-sm active" data-filter="all">
+                                <i class="fas fa-list me-1"></i>Todas
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" data-filter="pending">
+                                <i class="fas fa-clock me-1"></i>Pendentes
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" data-filter="approved">
+                                <i class="fas fa-check me-1"></i>Aprovadas
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" data-filter="rejected">
+                                <i class="fas fa-times me-1"></i>Rejeitadas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-4">ID</th>
+                                    <th>Cliente</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Convidados</th>
+                                    <th>Status</th>
+                                    <th>Contrato</th>
+                                    <th>Data da Solicitação</th>
+                                    <th class="text-end px-4">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reservation in reservations %}
+                                <tr class="reservation-row" data-status="{{ reservation.status }}">
+                                    <td class="px-4">#{{ reservation.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-2" style="background-color: #{{ '%06x' % ((reservation.user.id * 12345) % 0xFFFFFF) }}">
+                                                {{ reservation.user.name[:2].upper() }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ reservation.user.name }}</div>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-envelope me-1"></i>
+                                                    {{ reservation.user.email }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-calendar-day text-primary me-1"></i>
+                                        {{ reservation.check_in.strftime('%d/%m/%Y') }}
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-calendar-day text-primary me-1"></i>
+                                        {{ reservation.check_out.strftime('%d/%m/%Y') }}
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-users text-primary me-1"></i>
+                                        {{ reservation.guests }}
+                                    </td>
+                                    <td>
+                                        {% if reservation.status == 'pending' %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Pendente
+                                        </span>
+                                        {% elif reservation.status == 'approved' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>
+                                            Aprovada
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times me-1"></i>
+                                            Rejeitada
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if reservation.contract %}
+                                            {% if reservation.contract.status == 'completed' %}
+                                                <a href="{{ url_for('download_contract', reservation_id=reservation.id) }}" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-download me-1"></i>Download
+                                                </a>
+                                            {% elif reservation.contract.client_signature %}
+                                                <a href="{{ url_for('view_contract', reservation_id=reservation.id) }}" class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-signature me-1"></i>Assinar Contrato
+                                                </a>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Aguardando Cliente</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">Sem Contrato</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-clock text-primary me-1"></i>
+                                        {{ reservation.created_at.strftime('%d/%m/%Y %H:%M') }}
+                                    </td>
+                                    <td class="text-end px-4">
+                                        <div class="btn-group" role="group">
+                                            {% if reservation.status == 'pending' %}
+                                                {% if not reservation.contract or not reservation.contract.client_signature %}
+                                                    <a href="{{ url_for('approve_reservation', id=reservation.id) }}" 
+                                                       class="btn btn-success btn-sm" 
+                                                       onclick="return confirm('Confirmar aprovação da reserva?')"
+                                                       title="Aprovar Reserva">
+                                                        <i class="fas fa-check"></i>
+                                                    </a>
+                                                    <a href="{{ url_for('reject_reservation', id=reservation.id) }}" 
+                                                       class="btn btn-danger btn-sm"
+                                                       onclick="return confirm('Confirmar rejeição da reserva?')"
+                                                       title="Rejeitar Reserva">
+                                                        <i class="fas fa-times"></i>
+                                                    </a>
+                                                {% endif %}
+                                            {% endif %}
+                                            <a href="{{ url_for('delete_reservation', id=reservation.id) }}"
+                                               class="btn btn-outline-danger btn-sm"
+                                               onclick="return confirm('Tem certeza que deseja excluir esta reserva? Esta ação não pode ser desfeita.')"
+                                               title="Excluir Reserva">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% if reservation.notes %}
+                                <tr class="table-light reservation-row" data-status="{{ reservation.status }}">
+                                    <td colspan="9" class="px-4">
+                                        <i class="fas fa-comment-alt text-primary me-2"></i>
+                                        <strong>Observações:</strong> {{ reservation.notes }}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table td, .table th {
+    vertical-align: middle;
+}
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+.btn-group .btn {
+    display: inline-flex;
+    align-items: center;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const reservationRows = document.querySelectorAll('.reservation-row');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Show/hide rows based on filter
+            reservationRows.forEach(row => {
+                if (filter === 'all' || row.dataset.status === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Reservar{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Fazer Reserva</h2>
+                    <form method="POST" action="{{ url_for('reserve') }}" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="check_in" class="form-label">Data de Check-in</label>
+                                <input type="date" class="form-control" id="check_in" name="check_in" required>
+                                <div class="invalid-feedback">
+                                    Por favor, selecione a data de check-in.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="check_out" class="form-label">Data de Check-out</label>
+                                <input type="date" class="form-control" id="check_out" name="check_out" required>
+                                <div class="invalid-feedback">
+                                    Por favor, selecione a data de check-out.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="guests" class="form-label">Número de Convidados</label>
+                            <input type="number" class="form-control" id="guests" name="guests" min="10" max="100" required>
+                            <div class="invalid-feedback">
+                                O número de convidados deve ser entre 10 e 100 pessoas.
+                            </div>
+                            <small class="text-muted">Mínimo: 10 pessoas | Máximo: 100 pessoas</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="notes" class="form-label">Observações Adicionais</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Informações Importantes</h5>
+                                <ul class="mb-0">
+                                    <li>Horário de check-in: 10:00</li>
+                                    <li>Horário de check-out: 18:00</li>
+                                    <li>É necessário fazer o pagamento de 50% do valor para confirmar a reserva</li>
+                                    <li>Cancelamentos devem ser feitos com no mínimo 7 dias de antecedência</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                Li e aceito os termos e condições de uso
+                            </label>
+                            <div class="invalid-feedback">
+                                Você precisa aceitar os termos para prosseguir.
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Solicitar Reserva</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.needs-validation');
+    const checkIn = document.getElementById('check_in');
+    const checkOut = document.getElementById('check_out');
+    const guests = document.getElementById('guests');
+
+    // Define a data mínima como hoje
+    const today = new Date().toISOString().split('T')[0];
+    checkIn.min = today;
+    checkOut.min = today;
+
+    // Atualiza a data mínima de check-out quando o check-in é selecionado
+    checkIn.addEventListener('change', function() {
+        checkOut.min = this.value;
+        if (checkOut.value && checkOut.value < this.value) {
+            checkOut.value = this.value;
+        }
+    });
+
+    // Validação de datas
+    function validateDates() {
+        const start = new Date(checkIn.value);
+        const end = new Date(checkOut.value);
+        
+        if (end < start) {
+            checkOut.setCustomValidity('A data de check-out deve ser posterior ao check-in');
+        } else {
+            checkOut.setCustomValidity('');
+        }
+    }
+
+    checkIn.addEventListener('change', validateDates);
+    checkOut.addEventListener('change', validateDates);
+
+    // Validação do número de convidados
+    guests.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        if (value < 10) {
+            this.setCustomValidity('Mínimo de 10 convidados');
+        } else if (value > 100) {
+            this.setCustomValidity('Máximo de 100 convidados');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Contrato de Locação - Chácara Cancún</title>
+    <style>
+        @page {
+            margin: 2.5cm;
+            @top-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 9pt;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .content {
+            text-align: justify;
+        }
+        .signatures {
+            margin-top: 50px;
+            page-break-inside: avoid;
+        }
+        .signature-box {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 10px auto;
+        }
+        .signature-image {
+            max-width: 300px;
+            max-height: 100px;
+            margin: 10px auto;
+        }
+        .signature-date {
+            font-size: 10pt;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">CONTRATO DE LOCAÇÃO DE CHÁCARA PARA EVENTOS</div>
+    </div>
+
+    <div class="content">
+        <p>Pelo presente instrumento particular de locação de imóvel para eventos, de um lado:</p>
+        
+        <p><strong>LOCADOR:</strong> Chácara Cancún, doravante denominado simplesmente LOCADOR.</p>
+        
+        <p><strong>LOCATÁRIO:</strong> {{ reservation.user.name }}, portador do email {{ reservation.user.email }}, 
+        telefone {{ reservation.user.phone }}, doravante denominado simplesmente LOCATÁRIO.</p>
+        
+        <h3>1. OBJETO</h3>
+        <p>O presente contrato tem como objeto a locação da Chácara Cancún para realização de evento.</p>
+        
+        <h3>2. DADOS DA RESERVA</h3>
+        <ul>
+            <li><strong>Check-in:</strong> {{ reservation.check_in.strftime('%d/%m/%Y') }} às 10:00</li>
+            <li><strong>Check-out:</strong> {{ reservation.check_out.strftime('%d/%m/%Y') }} às 18:00</li>
+            <li><strong>Número de Convidados:</strong> {{ reservation.guests }} pessoas</li>
+            {% if reservation.notes %}
+            <li><strong>Observações:</strong> {{ reservation.notes }}</li>
+            {% endif %}
+        </ul>
+
+        <h3>3. CONDIÇÕES GERAIS</h3>
+        <ol>
+            <li>O LOCATÁRIO deverá efetuar o pagamento de 50% do valor total no ato da reserva.</li>
+            <li>O saldo restante deverá ser pago até 3 dias antes do evento.</li>
+            <li>Em caso de cancelamento, este deverá ser feito com no mínimo 7 dias de antecedência.</li>
+            <li>O LOCATÁRIO se responsabiliza por quaisquer danos causados ao imóvel durante o período de locação.</li>
+            <li>A capacidade máxima de 100 pessoas deve ser rigorosamente respeitada.</li>
+        </ol>
+    </div>
+
+    <div class="signatures">
+        <div class="signature-box">
+            <div class="signature-image">
+                {{ contract.client_signature|safe if contract.client_signature }}
+            </div>
+            <div class="signature-line"></div>
+            <p><strong>{{ reservation.user.name }}</strong><br>Locatário</p>
+            <p class="signature-date">Assinado em {{ (contract.client_signature_date - timedelta(hours=3)).strftime('%d/%m/%Y às %H:%M') }}</p>
+        </div>
+
+        <div class="signature-box">
+            <div class="signature-image">
+                {{ contract.admin_signature|safe if contract.admin_signature }}
+            </div>
+            <div class="signature-line"></div>
+            <p><strong>Chácara Cancún</strong><br>Locador</p>
+            <p class="signature-date">Assinado em {{ (contract.admin_signature_date - timedelta(hours=3)).strftime('%d/%m/%Y às %H:%M') }}</p>
+        </div>
+    </div>
+</body>
+</html> 

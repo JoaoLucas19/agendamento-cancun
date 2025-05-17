@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Início{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold mb-4">Bem-vindo à Chácara Cancún</h1>
+            <p class="lead mb-4">Um refúgio perfeito para momentos especiais com família e amigos. Desfrute de momentos inesquecíveis em um ambiente acolhedor e tranquilo.</p>
+            {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Cadastre-se</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+            </div>
+            {% else %}
+            <a href="{{ url_for('reserve') }}" class="btn btn-primary btn-lg px-4">Fazer Reserva</a>
+            {% endif %}
+        </div>
+        <div class="col-lg-6">
+            <div class="card rounded-3 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6" class="img-fluid" alt="Chácara">
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5 pt-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Nossos Diferenciais</h2>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-swimming-pool fa-3x mb-3 text-primary"></i>
+                    <h3 class="h5 card-title">Piscina</h3>
+                    <p class="card-text">Piscina ampla e bem cuidada para sua diversão e relaxamento.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-futbol fa-3x mb-3 text-primary"></i>
+                    <h3 class="h5 card-title">Área de Lazer</h3>
+                    <p class="card-text">Campo de futebol, quadra de areia e área de jogos para toda família.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
+                    <h3 class="h5 card-title">Churrasqueira</h3>
+                    <p class="card-text">Churrasqueira completa com área gourmet para suas confraternizações.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

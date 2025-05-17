@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="text-center mb-5">Sobre Nossa Chácara</h1>
+            
+            <div class="card mb-5">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">Bem-vindo ao seu refúgio perfeito!</h2>
+                    <p class="lead">Nossa chácara é o lugar ideal para quem busca momentos especiais com família e amigos, em um ambiente acolhedor e tranquilo, cercado pela natureza.</p>
+                </div>
+            </div>
+
+            <div class="row mb-5">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                Localização
+                            </h3>
+                            <p>Localizada em uma área privilegiada, com fácil acesso e próxima aos principais pontos da cidade.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="h5 mb-3">
+                                <i class="fas fa-ruler-combined text-primary me-2"></i>
+                                Estrutura
+                            </h3>
+                            <p>Área total de 5.000m², com amplo espaço verde e estrutura completa para seu conforto.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="h4 mb-4">Nossas Instalações</h3>
+            <div class="row mb-5">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-swimming-pool fa-2x text-primary mb-3"></i>
+                            <h4 class="h5">Piscina</h4>
+                            <ul class="list-unstyled">
+                                <li>Piscina adulto</li>
+                                <li>Piscina infantil</li>
+                                <li>Área de descanso</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-futbol fa-2x text-primary mb-3"></i>
+                            <h4 class="h5">Área de Lazer</h4>
+                            <ul class="list-unstyled">
+                                <li>Campo de futebol</li>
+                                <li>Playground</li>
+                                <li>Mesa de ping pong</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-utensils fa-2x text-primary mb-3"></i>
+                            <h4 class="h5">Área Gourmet</h4>
+                            <ul class="list-unstyled">
+                                <li>Churrasqueira</li>
+                                <li>Forno de pizza</li>
+                                <li>Cozinha equipada</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-5">
+                <div class="card-body">
+                    <h3 class="h4 mb-4">Informações Importantes</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="h6 mb-3">Horários</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-clock text-primary me-2"></i>Check-in: 10:00</li>
+                                <li><i class="fas fa-clock text-primary me-2"></i>Check-out: 18:00</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="h6 mb-3">Capacidade</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-users text-primary me-2"></i>Mínimo: 10 pessoas</li>
+                                <li><i class="fas fa-users text-primary me-2"></i>Máximo: 50 pessoas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <a href="{{ url_for('reserve') if current_user.is_authenticated else url_for('login') }}" class="btn btn-primary btn-lg">
+                    {{ 'Fazer Reserva' if current_user.is_authenticated else 'Login para Reservar' }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
